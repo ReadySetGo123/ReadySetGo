@@ -1,7 +1,7 @@
 <html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prostate Cancer Awareness Wordle</title>
+    <title>Ready Set Go Wordle</title>
     <style>
         /* CSS Reset */
         * {
@@ -264,7 +264,7 @@
     <div class="wordle-container">
         <header class="wordle-header">
             <h1>Ready Set Go!</h1>
-            <p>Guess the prostate cancer-related word in six tries</p>
+            <p>Guess the word in six tries</p>
         </header>
 
         <div class="timer-display" id="timer-display">
@@ -298,41 +298,7 @@
                 <li>Yellow: The letter is in the word but in the wrong spot.</li>
                 <li>Gray: The letter is not in the word.</li>
                 <li>The timer will track how long it takes you to solve the puzzle.</li>
-                <li>Your best times will be saved to the leaderboard.</li>
             </ul>
-        </div>
-
-        <div class="leaderboard" id="leaderboard">
-            <h2><span>🏆</span> Leaderboard</h2>
-            <table class="leaderboard-table" id="leaderboard-table">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Player</th>
-                        <th>Word</th>
-                        <th>Time</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-body">
-                    <tr>
-                        <td colspan="5" class="leaderboard-empty">No scores yet. Be the first to play!</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="player-name-modal" id="player-name-modal">
-            <div class="player-name-container">
-                <h3>You made the leaderboard!</h3>
-                <form id="player-name-form" class="player-name-form">
-                    <input type="text" id="player-name-input" class="player-name-input" placeholder="Enter your name" maxlength="20" required>
-                    <div class="player-name-buttons">
-                        <button type="button" id="player-name-cancel" class="player-name-cancel">Cancel</button>
-                        <button type="submit" class="player-name-submit">Submit</button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 
@@ -375,11 +341,6 @@
         let timerInterval;
         let elapsedTime = 0;
 
-        // Leaderboard variables
-        const LEADERBOARD_KEY = 'wordleLeaderboard';
-        const MAX_LEADERBOARD_ENTRIES = 10;
-        let leaderboard = [];
-
         // DOM elements
         const boardElement = document.getElementById('board');
         const keyboardElement = document.getElementById('keyboard');
@@ -388,11 +349,6 @@
         const gameStatusElement = document.getElementById('game-status');
         const statusTextElement = document.getElementById('status-text');
         const timerElement = document.getElementById('timer');
-        const leaderboardBody = document.getElementById('leaderboard-body');
-        const playerNameModal = document.getElementById('player-name-modal');
-        const playerNameForm = document.getElementById('player-name-form');
-        const playerNameInput = document.getElementById('player-name-input');
-        const playerNameCancel = document.getElementById('player-name-cancel');
 
         // Format time as MM:SS
         function formatTime(milliseconds) {
@@ -400,15 +356,6 @@
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
             return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        // Format date for leaderboard display
-        function formatDate(date) {
-            return new Intl.DateTimeFormat('en-US', { 
-                month: 'short', 
-                day: 'numeric',
-                year: 'numeric'
-            }).format(date);
         }
 
         // Start the timer
@@ -430,97 +377,6 @@
             stopTimer();
             elapsedTime = 0;
             timerElement.textContent = '00:00';
-        }
-
-        // Load leaderboard from localStorage
-        function loadLeaderboard() {
-            const savedLeaderboard = localStorage.getItem(LEADERBOARD_KEY);
-            if (savedLeaderboard) {
-                leaderboard = JSON.parse(savedLeaderboard);
-            }
-            updateLeaderboardDisplay();
-        }
-
-        // Save leaderboard to localStorage
-        function saveLeaderboard() {
-            localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(leaderboard));
-        }
-
-        // Update the leaderboard display
-        function updateLeaderboardDisplay() {
-            if (leaderboard.length === 0) {
-                leaderboardBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="leaderboard-empty">No scores yet. Be the first to play!</td>
-                    </tr>
-                `;
-                return;
-            }
-
-            // Sort by time (ascending)
-            leaderboard.sort((a, b) => a.time - b.time);
-            
-            let html = '';
-            leaderboard.forEach((entry, index) => {
-                html += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${entry.name}</td>
-                        <td>${entry.word}</td>
-                        <td>${formatTime(entry.time)}</td>
-                        <td>${formatDate(new Date(entry.date))}</td>
-                    </tr>
-                `;
-            });
-            
-            leaderboardBody.innerHTML = html;
-        }
-
-        // Check if score qualifies for leaderboard
-        function checkLeaderboardEligibility(time) {
-            // If we have fewer than MAX_LEADERBOARD_ENTRIES entries, any win qualifies
-            if (leaderboard.length < MAX_LEADERBOARD_ENTRIES) {
-                return true;
-            }
-            
-            // Sort the leaderboard by time (ascending)
-            leaderboard.sort((a, b) => a.time - b.time);
-            
-            // Check if this time is better than the worst time on the leaderboard
-            return time < leaderboard[leaderboard.length - 1].time;
-        }
-
-        // Add entry to leaderboard
-        function addLeaderboardEntry(name, word, time) {
-            const newEntry = {
-                name: name,
-                word: word,
-                time: time,
-                date: Date.now()
-            };
-            
-            leaderboard.push(newEntry);
-            leaderboard.sort((a, b) => a.time - b.time);
-            
-            // Trim leaderboard if it exceeds maximum entries
-            if (leaderboard.length > MAX_LEADERBOARD_ENTRIES) {
-                leaderboard = leaderboard.slice(0, MAX_LEADERBOARD_ENTRIES);
-            }
-            
-            saveLeaderboard();
-            updateLeaderboardDisplay();
-        }
-
-        // Open the player name modal
-        function openPlayerNameModal() {
-            playerNameModal.classList.add('show');
-            playerNameInput.focus();
-        }
-
-        // Close the player name modal
-        function closePlayerNameModal() {
-            playerNameModal.classList.remove('show');
-            playerNameInput.value = '';
         }
 
         // Initialize game
@@ -729,11 +585,6 @@
                         const finalTime = formatTime(elapsedTime);
                         statusTextElement.textContent = `Congratulations! You guessed the word ${secretWord} in ${finalTime}!`;
                         displayMessage(`Congratulations! You won in ${finalTime}!`);
-                        
-                        // Check if score qualifies for leaderboard
-                        if (checkLeaderboardEligibility(elapsedTime)) {
-                            openPlayerNameModal();
-                        }
                     } else if (currentRow === 5) {
                         stopTimer();
                         gameState = 'lost';
@@ -777,22 +628,8 @@
         // Event listeners
         document.addEventListener('keydown', handlePhysicalKeyboard);
         newGameButton.addEventListener('click', startNewGame);
-        
-        // Player name form submission
-        playerNameForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const playerName = playerNameInput.value.trim();
-            if (playerName) {
-                addLeaderboardEntry(playerName, secretWord, elapsedTime);
-                closePlayerNameModal();
-            }
-        });
-        
-        // Cancel button
-        playerNameCancel.addEventListener('click', closePlayerNameModal);
 
         // Initialize the game
         initGame();
-        loadLeaderboard();
     </script>
 </body></html>
