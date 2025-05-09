@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prostate Cancer Awareness Wordle</title>
+    <title>Ready Set Go Wordle</title>
     <style>
         /* CSS Reset */
         * {
@@ -16,7 +14,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             min-height: 100vh;
-            background-color: #DFE5EC;
+            background-color: #223C77;
             color: #1E2D40;
             display: flex;
             flex-direction: column;
@@ -38,11 +36,31 @@
             font-size: 1.875rem;
             font-weight: bold;
             margin-bottom: 8px;
-            color: #1E2D40;
+            color: #ffffff;
         }
 
         .wordle-header p {
-            color: #687B8C;
+            color: #F06726;
+            font-weight: bold;
+        }
+
+        /* Timer Display */
+        .timer-display {
+            background-color: #1E2D40;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .timer-icon {
+            margin-right: 8px;
         }
 
         /* Message Display */
@@ -75,8 +93,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid #687B8C;
-            background-color: #DFE5EC;
+            border: 2px solid #223C77;
+            background-color: #CCD7F0;
             color: #1E2D40;
             font-size: 1.5rem;
             font-weight: bold;
@@ -112,7 +130,7 @@
         /* Controls */
         .controls {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             margin-bottom: 16px;
         }
 
@@ -130,39 +148,6 @@
 
         .button:hover {
             background-color: #1E2D40;
-        }
-
-        .button.hint-button {
-            background-color: #F27507;
-        }
-
-        .button svg {
-            margin-right: 4px;
-        }
-
-        /* Hint Display */
-        .hint {
-            background-color: #1E2D40;
-            color: white;
-            padding: 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
-        .hint.show {
-            display: block;
-        }
-
-        .hint h2 {
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .hint svg {
-            margin-right: 8px;
         }
 
         /* Keyboard */
@@ -259,13 +244,13 @@
             font-weight: bold;
             font-size: 1.25rem;
             margin-bottom: 8px;
-            color: #1E2D40;
+            color: #223C77;
         }
 
         .instructions ul {
             list-style-type: disc;
             padding-left: 20px;
-            color: #687B8C;
+            color: #223C77;
         }
 
         .accessibility-note {
@@ -278,9 +263,14 @@
 <body>
     <div class="wordle-container">
         <header class="wordle-header">
-            <h1>Prostate Cancer Awareness Wordle</h1>
-            <p>Guess the prostate cancer-related word in six tries</p>
+            <h1>Ready Set Go!</h1>
+            <p>Guess the word in six tries</p>
         </header>
+
+        <div class="timer-display" id="timer-display">
+            <span class="timer-icon">⏱️</span>
+            <span id="timer">00:00</span>
+        </div>
 
         <div class="message" id="message"></div>
 
@@ -290,27 +280,6 @@
             <button id="new-game-btn" class="button" aria-label="Start new game">
                 New Game
             </button>
-            
-            <button id="hint-btn" class="button" aria-label="Show hint" aria-expanded="false">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-                Show Hint
-            </button>
-        </div>
-
-        <div class="hint" id="hint" role="alert">
-            <h2>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                Hint
-            </h2>
-            <p id="hint-text"></p>
         </div>
 
         <div id="keyboard" class="keyboard" role="group" aria-label="Virtual keyboard"></div>
@@ -328,35 +297,27 @@
                 <li>Green: The letter is in the word and in the correct spot.</li>
                 <li>Yellow: The letter is in the word but in the wrong spot.</li>
                 <li>Gray: The letter is not in the word.</li>
-                <li>Use the hint button if you need help.</li>
+                <li>The timer will track how long it takes you to solve the puzzle.</li>
             </ul>
-        </div>
-        
-        <div class="accessibility-note">
-            <p>This game is designed to be accessible to all users, including those using screen readers. All game elements have appropriate ARIA labels. The game can be played entirely with a keyboard.</p>
         </div>
     </div>
 
     <script>
         // List of words related to prostate cancer
         const WORDS = [
-            "MHSPC", "READY", "BRAND", "BAYER", "QUANT", 
-            "CHEMO", "TUMOR", "STOCK", "PRINT", "COLOR", "TRIAL"
+            "SWORD", "RHINO", "KAYAK", "BRAND", "POWER", 
+            "BAYER", "QUANT"
         ];
 
-        // Hints for each word
+        // Hints for each word (keeping this for future reference but not using in UI)
         const HINTS = {
-            "MHSPC": "Abbreviation for metastatic hormone-sensitive prostate cancer",
-            "READY": "Prepared or available for treatment",
-            "BRAND": "A type of product manufactured by a particular company",
-            "BAYER": "A pharmaceutical company that develops cancer treatments",
-            "QUANT": "Quantitative analysis often used in cancer research",
-            "CHEMO": "A type of cancer treatment using drugs to kill cancer cells",
-            "TUMOR": "An abnormal growth of tissue that can be malignant",
-            "STOCK": "Shares in the ownership of a company",
-            "PRINT": "To produce text or images on paper",
-            "COLOR": "A property of objects related to light reflection",
-            "TRIAL": "A clinical research study to evaluate medical treatments"
+            "SWORD": "A knight's trusted weapon, sharp and often seen in fantasy battles",
+            "RHINO": "This horned giant is one of Africa's most powerful animals",
+            "KAYAK": "A small boat you paddle, often used on rivers or lakes",
+            "BRAND": "A company's identity, or the name you recognize on a product",
+            "POWER": "What superheroes have, and machines need to run",
+            "BAYER": "A major pharmaceutical company",
+            "QUANT": "A field of study that uses surveys, statistics, and data analysis to measure market trends and consumer preferences"
         };
 
         // Letter states
@@ -374,18 +335,49 @@
         let currentRow = 0;
         let gameState = 'playing'; // 'playing', 'won', 'lost'
         let keyboardStatus = {};
-        let usedHint = false;
+        
+        // Timer variables
+        let startTime;
+        let timerInterval;
+        let elapsedTime = 0;
 
         // DOM elements
         const boardElement = document.getElementById('board');
         const keyboardElement = document.getElementById('keyboard');
         const messageElement = document.getElementById('message');
-        const hintButton = document.getElementById('hint-btn');
-        const hintElement = document.getElementById('hint');
-        const hintTextElement = document.getElementById('hint-text');
         const newGameButton = document.getElementById('new-game-btn');
         const gameStatusElement = document.getElementById('game-status');
         const statusTextElement = document.getElementById('status-text');
+        const timerElement = document.getElementById('timer');
+
+        // Format time as MM:SS
+        function formatTime(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Start the timer
+        function startTimer() {
+            startTime = Date.now() - elapsedTime;
+            timerInterval = setInterval(() => {
+                elapsedTime = Date.now() - startTime;
+                timerElement.textContent = formatTime(elapsedTime);
+            }, 1000);
+        }
+
+        // Stop the timer
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        // Reset the timer
+        function resetTimer() {
+            stopTimer();
+            elapsedTime = 0;
+            timerElement.textContent = '00:00';
+        }
 
         // Initialize game
         function initGame() {
@@ -448,18 +440,7 @@
             
             // Reset UI
             messageElement.classList.remove('show');
-            hintElement.classList.remove('show');
             gameStatusElement.classList.remove('show', 'won', 'lost');
-            hintButton.classList.remove('hint-button');
-            hintButton.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-                Show Hint
-            `;
-            hintButton.setAttribute('aria-expanded', 'false');
             
             // Reset board cells
             for (let row = 0; row < 6; row++) {
@@ -477,10 +458,9 @@
                 key.classList.remove('correct', 'present', 'absent');
             });
             
-            usedHint = false;
-            
-            // Initialize hint for the new word
-            hintTextElement.textContent = HINTS[secretWord];
+            // Reset and start timer
+            resetTimer();
+            startTimer();
         }
 
         // Display a message
@@ -599,11 +579,14 @@
                     
                     // Check for win or loss
                     if (currentGuess === secretWord) {
+                        stopTimer();
                         gameState = 'won';
                         gameStatusElement.classList.add('show', 'won');
-                        statusTextElement.textContent = `Congratulations! You guessed the word ${secretWord}!`;
-                        displayMessage('Congratulations! You won!');
+                        const finalTime = formatTime(elapsedTime);
+                        statusTextElement.textContent = `Congratulations! You guessed the word ${secretWord} in ${finalTime}!`;
+                        displayMessage(`Congratulations! You won in ${finalTime}!`);
                     } else if (currentRow === 5) {
+                        stopTimer();
                         gameState = 'lost';
                         gameStatusElement.classList.add('show', 'lost');
                         statusTextElement.textContent = `Game over! The word was ${secretWord}.`;
@@ -627,33 +610,6 @@
             }
         }
 
-        // Toggle hint display
-        function toggleHint() {
-            const isHintVisible = hintElement.classList.contains('show');
-            
-            if (!isHintVisible) {
-                hintElement.classList.add('show');
-                hintButton.textContent = 'Hide Hint';
-                hintButton.setAttribute('aria-expanded', 'true');
-                
-                if (!usedHint) {
-                    usedHint = true;
-                    hintButton.classList.add('hint-button');
-                }
-            } else {
-                hintElement.classList.remove('show');
-                hintButton.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                    </svg>
-                    Show Hint
-                `;
-                hintButton.setAttribute('aria-expanded', 'false');
-            }
-        }
-
         // Physical keyboard support
         function handlePhysicalKeyboard(event) {
             if (gameState !== 'playing') return;
@@ -671,11 +627,9 @@
 
         // Event listeners
         document.addEventListener('keydown', handlePhysicalKeyboard);
-        hintButton.addEventListener('click', toggleHint);
         newGameButton.addEventListener('click', startNewGame);
 
         // Initialize the game
         initGame();
     </script>
-</body>
-</html>
+</body></html>
