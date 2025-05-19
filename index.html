@@ -80,6 +80,29 @@
             opacity: 1;
         }
 
+        /* Game Status - Moved above the board */
+        .game-status {
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 6px;
+            color: white;
+            text-align: center;
+            display: none;
+            width: 100%;
+        }
+
+        .game-status.show {
+            display: block;
+        }
+
+        .game-status.won {
+            background-color: #4caf50;
+        }
+
+        .game-status.lost {
+            background-color: #f44336;
+        }
+
         /* Game Board */
         .board {
             display: grid;
@@ -218,28 +241,6 @@
             background-color: #757575;
             color: white;
         }
-
-        /* Game Status */
-        .game-status {
-            margin-top: 16px;
-            padding: 20px;
-            border-radius: 4px;
-            color: white;
-            text-align: center;
-            display: none;
-        }
-
-        .game-status.show {
-            display: block;
-        }
-
-        .game-status.won {
-            background-color: #4caf50;
-        }
-
-        .game-status.lost {
-            background-color: #f44336;
-        }
         
         /* Status content styling */
         .status-content {
@@ -249,6 +250,7 @@
             gap: 16px;
         }
         
+        /* Screenshot button now in status content */
         .screenshot-btn {
             background-color: #F06726;
             color: white;
@@ -398,6 +400,15 @@
         .download-button:hover {
             background-color: #388e3c;
         }
+
+        /* Added for the remaining controls in game status */
+        .status-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -412,6 +423,20 @@
             <span id="timer">00:00</span>
         </div>
 
+        <!-- Game status moved here, between timer and board -->
+        <div id="game-status" class="game-status">
+            <div class="status-content">
+                <p id="status-text"></p>
+                <div class="status-controls">
+                    <button id="screenshot-btn" class="screenshot-btn" aria-label="Take a screenshot">
+                        📸 Screenshot
+                    </button>
+                    <p class="submit-text">Submit your screenshot <a href="https://placeholderreadysetgo.com" target="_blank">here</a> to compete against your global colleagues!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temporary message display for notifications -->
         <div class="message" id="message"></div>
 
         <div class="board" id="board" role="grid" aria-label="Wordle game board" style="background-color: #223C77;"></div>
@@ -423,16 +448,6 @@
         </div>
 
         <div id="keyboard" class="keyboard" role="group" aria-label="Virtual keyboard"></div>
-
-        <div id="game-status" class="game-status">
-            <div class="status-content">
-                <p id="status-text"></p>
-                <button id="screenshot-btn" class="screenshot-btn" aria-label="Take a screenshot">
-                    📸 Screenshot
-                </button>
-                <p class="submit-text">Submit your screenshot <a href="https://placeholderreadysetgo.com" target="_blank">here</a> to compete against your global colleagues!</p>
-            </div>
-        </div>
 
         <!-- CTA Banner -->
         <div class="cta-banner">
@@ -757,13 +772,11 @@
                         gameStatusElement.classList.add('show', 'won');
                         const finalTime = formatTime(elapsedTime);
                         statusTextElement.textContent = `Congratulations! You guessed the word ${secretWord} in ${finalTime}!`;
-                        // Don't show the message in a temporary popup, keep it in the status panel
                     } else if (currentRow === 5) {
                         stopTimer();
                         gameState = 'lost';
                         gameStatusElement.classList.add('show', 'lost');
                         statusTextElement.textContent = `Game over! The word was ${secretWord}.`;
-                        // Don't show the message in a temporary popup
                     } else {
                         // Move to the next row
                         currentRow++;
