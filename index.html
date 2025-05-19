@@ -19,6 +19,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-top: 24px;
         }
 
         .wordle-container {
@@ -131,6 +132,7 @@
         .controls {
             display: flex;
             justify-content: center;
+            gap: 12px;
             margin-bottom: 16px;
         }
 
@@ -148,6 +150,14 @@
 
         .button:hover {
             background-color: #1E2D40;
+        }
+
+        .screenshot-button {
+            background-color: #F06726;
+        }
+
+        .screenshot-button:hover {
+            background-color: #D4521A;
         }
 
         /* Keyboard */
@@ -212,7 +222,7 @@
         /* Game Status */
         .game-status {
             margin-top: 16px;
-            padding: 12px;
+            padding: 20px;
             border-radius: 4px;
             color: white;
             text-align: center;
@@ -229,6 +239,44 @@
 
         .game-status.lost {
             background-color: #f44336;
+        }
+        
+        /* Status content styling */
+        .status-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .screenshot-btn {
+            background-color: #F06726;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .screenshot-btn:hover {
+            background-color: #D4521A;
+        }
+        
+        .submit-text {
+            margin-top: 8px;
+            font-size: 1rem;
+        }
+        
+        .submit-text a {
+            color: white;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        
+        .submit-text a:hover {
+            text-decoration: none;
         }
 
         /* Instructions */
@@ -258,6 +306,98 @@
             font-size: 0.875rem;
             color: #687B8C;
         }
+
+        /* CTA Banner */
+        .cta-banner {
+            background-color: #F06726;
+            color: white;
+            padding: 16px;
+            text-align: center;
+            margin-top: 24px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            display: none; /* Hide the original CTA banner since we're showing it in game status */
+        }
+
+        .cta-banner h3 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+
+        .cta-banner p {
+            margin-bottom: 12px;
+        }
+
+        .cta-banner a {
+            color: white;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .cta-banner a:hover {
+            text-decoration: none;
+        }
+
+        /* Screenshot modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #screenshot-result {
+            max-width: 100%;
+            border: 1px solid #ddd;
+        }
+
+        .screenshot-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .download-button {
+            background-color: #4caf50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .download-button:hover {
+            background-color: #388e3c;
+        }
     </style>
 </head>
 <body>
@@ -274,7 +414,7 @@
 
         <div class="message" id="message"></div>
 
-        <div class="board" id="board" role="grid" aria-label="Wordle game board"></div>
+        <div class="board" id="board" role="grid" aria-label="Wordle game board" style="background-color: #223C77;"></div>
 
         <div class="controls">
             <button id="new-game-btn" class="button" aria-label="Start new game">
@@ -285,13 +425,25 @@
         <div id="keyboard" class="keyboard" role="group" aria-label="Virtual keyboard"></div>
 
         <div id="game-status" class="game-status">
-            <p id="status-text"></p>
+            <div class="status-content">
+                <p id="status-text"></p>
+                <button id="screenshot-btn" class="screenshot-btn" aria-label="Take a screenshot">
+                    📸 Screenshot
+                </button>
+                <p class="submit-text">Submit your screenshot <a href="https://placeholderreadysetgo.com" target="_blank">here</a> to compete against your global colleagues!</p>
+            </div>
+        </div>
+
+        <!-- CTA Banner -->
+        <div class="cta-banner">
+            <h3>Share Your Results!</h3>
+            <p>Take a screenshot of your completed game and submit it to our website for a chance to win prizes!</p>
+            <a href="https://placeholderreadysetgo.com" target="_blank">Submit at placeholderreadysetgo.com</a>
         </div>
 
         <div class="instructions">
             <h2>How to Play</h2>
             <ul>
-                
                 <li>Guess the WORDLE in six tries.</li>
                 <li>Each guess must be a valid 5-letter word.</li>
                 <li>After each guess, the color of the tiles will change to show how close your guess was to the word.</li>
@@ -302,6 +454,23 @@
             </ul>
         </div>
     </div>
+
+    <!-- Screenshot Modal -->
+    <div id="screenshot-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-modal">&times;</span>
+            <h2 style="text-align: center; margin-bottom: 16px;">Your Screenshot</h2>
+            <div style="text-align: center;">
+                <img id="screenshot-result" alt="Game Screenshot" />
+            </div>
+            <div class="screenshot-actions">
+                <button id="download-btn" class="download-button">Download Screenshot</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HTML2Canvas Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script>
         // List of words related to prostate cancer
@@ -348,6 +517,11 @@
         const gameStatusElement = document.getElementById('game-status');
         const statusTextElement = document.getElementById('status-text');
         const timerElement = document.getElementById('timer');
+        const screenshotButton = document.getElementById('screenshot-btn');
+        const screenshotModal = document.getElementById('screenshot-modal');
+        const closeModalButton = document.getElementById('close-modal');
+        const screenshotResult = document.getElementById('screenshot-result');
+        const downloadButton = document.getElementById('download-btn');
 
         // Format time as MM:SS
         function formatTime(milliseconds) {
@@ -583,13 +757,13 @@
                         gameStatusElement.classList.add('show', 'won');
                         const finalTime = formatTime(elapsedTime);
                         statusTextElement.textContent = `Congratulations! You guessed the word ${secretWord} in ${finalTime}!`;
-                        displayMessage(`Congratulations! You won in ${finalTime}!`);
+                        // Don't show the message in a temporary popup, keep it in the status panel
                     } else if (currentRow === 5) {
                         stopTimer();
                         gameState = 'lost';
                         gameStatusElement.classList.add('show', 'lost');
                         statusTextElement.textContent = `Game over! The word was ${secretWord}.`;
-                        displayMessage(`Game over! The word was ${secretWord}`);
+                        // Don't show the message in a temporary popup
                     } else {
                         // Move to the next row
                         currentRow++;
@@ -624,9 +798,61 @@
             }
         }
 
+        // Take a screenshot of the game
+        function takeScreenshot() {
+            // Define the element to capture
+            const captureElement = document.querySelector('.wordle-container');
+            
+            // Set the options for html2canvas
+            const options = {
+                scale: 2, // Increase quality
+                useCORS: true,
+                backgroundColor: null,
+                logging: false
+            };
+            
+            // Show a loading message
+            displayMessage('Taking screenshot...');
+            
+            // Use html2canvas to take the screenshot
+            html2canvas(captureElement, options).then(canvas => {
+                // Convert canvas to image and display in modal
+                const dataUrl = canvas.toDataURL('image/png');
+                screenshotResult.src = dataUrl;
+                
+                // Show the modal
+                screenshotModal.style.display = 'flex';
+                
+                // Set up download button
+                downloadButton.onclick = function() {
+                    const link = document.createElement('a');
+                    link.download = `ReadySetGo-${new Date().toISOString().slice(0, 10)}.png`;
+                    link.href = dataUrl;
+                    link.click();
+                };
+            }).catch(error => {
+                console.error('Error taking screenshot:', error);
+                displayMessage('Failed to take screenshot. Please try again.');
+            });
+        }
+
+        // Close the modal
+        function closeModal() {
+            screenshotModal.style.display = 'none';
+        }
+
         // Event listeners
         document.addEventListener('keydown', handlePhysicalKeyboard);
         newGameButton.addEventListener('click', startNewGame);
+        screenshotButton.addEventListener('click', takeScreenshot);
+        closeModalButton.addEventListener('click', closeModal);
+        
+        // Close the modal if user clicks outside of it
+        window.onclick = function(event) {
+            if (event.target === screenshotModal) {
+                closeModal();
+            }
+        };
 
         // Initialize the game
         initGame();
